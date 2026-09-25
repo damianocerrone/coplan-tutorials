@@ -5,6 +5,7 @@
  *   cursor.at     = [x, y]         where the pointer TIP lands; click: true plays the tap animation
  *   zoom          = [x, y, w, h]   2:1 region to zoom into (w === h keeps the 2:1 aspect); omit for the full view
  *   highlight.side = "above" | "left below" | …   optional: the side(s) to try first for the label pill
+ *   frame: "phone"  (on a step) for plates made with tools/compose-phone.py: no browser bar, fingertip pointer
  * Every box and cursor point was checked by drawing it on the screenshot.
  */
 window.COPLAN_TUTORIAL.chapters.push({
@@ -200,37 +201,42 @@ window.COPLAN_TUTORIAL.chapters.push({
       image: "img/06-filters-ended.webp",
       url: "coplanai.ikonai.app",
       alt: "The Your Workshops panel with the Ended status tab selected, the Newest and Created by all menus, the Show archived toggle switched off, and three ended workshop cards.",
+      note: {
+        kind: "info",
+        title: "What moves a workshop between tabs",
+        html: "A workshop's status changes as you publish, start, pause and end it. <a href='#publish-and-share'>Publish, share and run</a> explains each step, and how the start and end dates fit in."
+      },
       beats: [
         {
-          html: "Use the status tabs to narrow the list. <strong>All</strong> shows everything, <strong>Live</strong> shows workshops running now and <strong>Upcoming</strong> those scheduled to start.",
+          html: "Use the status tabs to narrow the list. <strong>All</strong> shows every workshop that isn't archived, and <strong>Live</strong> the ones running now, between their start and end dates.",
           highlight: { box: [0.1929, 0.42, 0.3046, 0.0608], label: "Status tabs" },
           zoom: [0.095, 0.22, 0.46, 0.46]
         },
         {
-          html: "Click <strong>Ended</strong> to see only finished workshops, handy when you're looking for a past one to reuse.",
+          html: "Click <strong>Ended</strong> to see only finished workshops, handy when you're looking for a past one to reuse or want to open its report.",
           highlight: { box: [0.3125, 0.4242, 0.0454, 0.0525], label: "Ended", side: "above" },
           cursor: { at: [0.33, 0.4533], click: true },
           zoom: [0.095, 0.22, 0.46, 0.46]
         },
         {
-          html: "The last three tabs work the same way: <strong>Paused</strong> shows workshops on hold, <strong>Draft</strong> those still being set up, and <strong>Published</strong> your published workshops.",
+          html: "<strong>Paused</strong> shows workshops on hold: participants are disconnected until you start the workshop again. <strong>Draft</strong> shows those not yet published; <strong>Published</strong> lists public workshops that are live or ready to start.",
           highlight: { box: [0.358, 0.4242, 0.1395, 0.0525], label: "More statuses", side: "above" },
           zoom: [0.095, 0.22, 0.46, 0.46]
         },
         {
-          html: "Open the <strong>Newest</strong> menu to change the order in which your workshops are listed, so the ones you need are easier to spot.",
+          html: "Open the <strong>Newest</strong> menu to list your workshops newest or oldest first, so the ones you need are easier to spot.",
           highlight: { box: [0.5579, 0.4258, 0.0725, 0.0492], label: "Sort order", side: "above" },
           cursor: { at: [0.575, 0.4542], click: true },
           zoom: [0.4512, 0.22, 0.46, 0.46]
         },
         {
-          html: "<strong>Created by all</strong> shows everyone's workshops. Switch it to see only those created by a specific person, such as yourself or a colleague.",
+          html: "<strong>Created by all</strong> shows everyone's workshops. Switch it to <strong>Created by me</strong> to see only the ones you created yourself.",
           highlight: { box: [0.6283, 0.4258, 0.0896, 0.0492], label: "Created by", side: "above" },
           cursor: { at: [0.6525, 0.4542], click: true },
           zoom: [0.4512, 0.22, 0.46, 0.46]
         },
         {
-          html: "Turn on <strong>Show archived</strong> to bring archived workshops back into view, and turn it off again to keep your list focused on current work.",
+          html: "Turn on <strong>Show archived</strong> to list archived workshops among the others, each with an <strong>Archived</strong> tag. It only shows them: an archived workshop stays read-only for good.",
           highlight: { box: [0.7208, 0.4308, 0.0838, 0.0392], label: "Show archived", side: "right below" },
           cursor: { at: [0.7858, 0.4517], click: true },
           zoom: [0.4512, 0.22, 0.46, 0.46]
@@ -244,6 +250,11 @@ window.COPLAN_TUTORIAL.chapters.push({
       image: "img/07-workshop-menu.webp",
       url: "coplanai.ikonai.app",
       alt: "The Ended workshops list with the three-dot menu of the first card open: Go to workshop, Open gallery, Edit workshop, Guided setup, Duplicate workshop, Share workshop link, View report and Archive workshop.",
+      note: {
+        kind: "warning",
+        title: "Archiving can't be undone",
+        html: "There is no way to un-archive a workshop. An archived workshop is read-only and appears only with <strong>Show archived</strong> on, where its menu offers just <strong>Go to workshop</strong>, <strong>Open gallery</strong> and <strong>Duplicate workshop</strong>. Its report stays available under <strong>App Settings</strong> &rsaquo; <strong>Reports</strong>."
+      },
       beats: [
         {
           html: "Click <strong>Create</strong> to start a brand-new workshop from scratch, when there's no earlier workshop you want to build on.",
@@ -258,18 +269,18 @@ window.COPLAN_TUTORIAL.chapters.push({
           zoom: [0.1092, 0.4383, 0.44, 0.44]
         },
         {
-          html: "The menu gathers everything you can do with that workshop: <strong>Go to workshop</strong>, <strong>Open gallery</strong>, <strong>Edit workshop</strong> to customise it, <strong>Guided setup</strong>, <strong>Share workshop link</strong>, <strong>View report</strong> and more.",
+          html: "The menu gathers what you can do with that workshop, and changes with its status. This ended one offers <strong>Go to workshop</strong>, <strong>Open gallery</strong>, <strong>Edit workshop</strong>, <strong>Guided setup</strong>, <strong>View report</strong> and more.",
           highlight: { box: [0.2787, 0.5058, 0.1008, 0.2983], label: "Workshop menu" },
           zoom: [0.1092, 0.4383, 0.44, 0.44]
         },
         {
-          html: "Click <strong>Duplicate workshop</strong>. The copy keeps all the settings, starting images and AI customisation, but starts blank: none of the participants' content is carried over.",
+          html: "Click <strong>Duplicate workshop</strong>. A Draft copy appears straight away with all the settings, starting images and AI customisation, but blank: none of the participants' content is carried over.",
           highlight: { box: [0.2858, 0.6533, 0.0875, 0.0283], label: "Duplicate" },
           cursor: { at: [0.3092, 0.67], click: true },
           zoom: [0.1092, 0.4383, 0.44, 0.44]
         },
         {
-          html: "<strong>Archive workshop</strong> removes a workshop you no longer need from your list. It isn't lost: turn on <strong>Show archived</strong> to see it again.",
+          html: "<strong>Archive workshop</strong> is permanent: after you confirm, the workshop becomes read-only, leaves your list and can't be un-archived. You can still duplicate it later.",
           highlight: { box: [0.2858, 0.7642, 0.0875, 0.0275], label: "Archive" },
           cursor: { at: [0.3083, 0.78], click: false },
           zoom: [0.1092, 0.4383, 0.44, 0.44]

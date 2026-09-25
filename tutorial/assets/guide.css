@@ -151,17 +151,34 @@ main:focus{outline:none}
 .brand:focus-visible{outline-offset:6px}
 .site-header__label{display:flex;align-items:center;gap:clamp(16px,2.2vw,32px);font:500 15px/1 var(--ff-text);color:var(--ink-3);white-space:nowrap}
 .site-header__label::before{content:"";width:1px;height:22px;background:var(--rule)}
-.site-nav{margin-left:auto;flex:none}
-.site-nav ul{list-style:none;display:flex;align-items:center;gap:clamp(18px,2.2vw,32px)}
-.site-nav a{position:relative;display:block;max-width:15em;overflow:hidden;text-overflow:ellipsis;padding:10px 0;font:500 16px/1 var(--ff-text);color:#40464E;text-decoration:none;white-space:nowrap;transition:color .2s}
-.site-nav a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;border-radius:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .25s}
-.site-nav a:hover{color:var(--ink)}
-.site-nav a:hover::after{transform:scaleX(1);background:rgba(20,23,28,.28)}
-.site-nav a[aria-current]{color:var(--ink)}
-.site-nav a[aria-current]::after{transform:scaleX(1);background:var(--amber)}
+/* the chapter menu: an outlined pill ("Chapters", plus the chapter on screen, e.g. 03/07) that opens a
+   calm white panel with one row per chapter */
+.site-nav{position:relative;margin-left:auto;flex:none}
+.site-nav__btn{display:inline-flex;align-items:center;gap:9px;height:40px;margin:0;padding:0 14px 0 18px;border:0;border-radius:var(--r-pill);background:transparent;box-shadow:inset 0 0 0 1px var(--rule);
+  font:500 15px/1 var(--ff-text);letter-spacing:0;color:var(--ink);white-space:nowrap;cursor:pointer;transition:background-color .2s,box-shadow .2s}
+.site-nav__btn:hover,.site-nav.is-open .site-nav__btn{background:var(--field);box-shadow:inset 0 0 0 1px rgba(20,23,28,.22)}
+.site-nav__btn:focus-visible{outline-offset:3px;border-radius:var(--r-pill)}
+.site-nav__count{font:700 12px/1 var(--ff-label);letter-spacing:.1em;color:var(--amber);font-variant-numeric:tabular-nums}
+.site-nav__count:empty{display:none}
+.site-nav__btn .chev{width:12px;height:12px;color:var(--ink-3);transition:transform .25s cubic-bezier(.65,0,.35,1)}
+.site-nav.is-open .site-nav__btn .chev{transform:rotate(180deg)}
+.site-nav__panel{position:absolute;right:0;top:calc(100% + 22px);z-index:2;width:min(440px,calc(100vw - 2 * var(--gut)));max-height:calc(100vh - var(--header-h) - 32px);overflow:auto;overscroll-behavior:contain;
+  padding:14px 10px 10px;border-radius:var(--r-img);background:#fff;box-shadow:0 0 0 1px var(--rule),0 2px 6px rgba(20,23,28,.05),0 24px 48px -20px rgba(20,23,28,.28);
+  visibility:hidden;opacity:0;transform:translateY(-6px);transition:opacity .18s ease,transform .22s cubic-bezier(.2,.7,.2,1),visibility 0s linear .22s}
+.site-nav.is-open .site-nav__panel{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+.site-nav__lab{padding:2px 12px 10px;margin-bottom:4px;border-bottom:1px solid var(--rule-soft)}
+.site-nav__panel ul{list-style:none;display:grid;gap:2px}
+.site-nav__panel a{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:10px 12px;border-radius:12px;text-decoration:none;color:var(--ink);transition:background-color .15s}
+.site-nav__panel a:hover{background:var(--field)}
+.site-nav__panel a:focus-visible{outline-offset:-2px;border-radius:12px}
+.site-nav__no{display:inline-grid;place-items:center;height:24px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 1px var(--rule);font:700 11.5px/1 var(--ff-label);letter-spacing:.06em;color:var(--ink);font-variant-numeric:tabular-nums}
+.site-nav__t{font:400 19px/1.22 var(--ff-news);letter-spacing:-.006em;color:var(--ink);text-wrap:balance}
+.site-nav__n{font:700 11.5px/1.2 var(--ff-label);letter-spacing:.12em;text-transform:uppercase;color:var(--label);white-space:nowrap}
+.site-nav__panel a[aria-current] .site-nav__no{background:var(--amber);color:#fff;box-shadow:none}
+.site-nav__panel a[aria-current] .site-nav__t{color:var(--amber)}
 .site-header__cta{flex:none;margin-left:auto}
 .site-nav + .site-header__cta{margin-left:0}
-/* chapter links only when they fit (guide.js sets .is-tight); never on tablets and phones */
+/* the chapter menu only when the bar fits (guide.js sets .is-tight); never on phones */
 .site-header__bar.is-tight .site-nav{display:none}
 .site-header__bar.is-tight .site-nav + .site-header__cta{margin-left:auto}
 .progress{position:absolute;left:0;right:0;bottom:-1px;height:2px;pointer-events:none;overflow:hidden}
@@ -185,13 +202,23 @@ main:focus{outline:none}
 
 .toc{grid-column:9/13}
 .toc > .eyebrow{margin-bottom:18px}
-.toc__chapters{list-style:none}
-.toc__chapter + .toc__chapter{margin-top:34px}
-.toc__head{display:block;text-decoration:none;color:inherit;padding-top:16px;border-top:1px solid var(--rule)}
+.toc__chapters{list-style:none;border-bottom:1px solid var(--rule)}
+.toc__chapter{border-top:1px solid var(--rule)}
+/* one row per chapter: the chapter link, and a button that shows its steps */
+.toc__row{display:flex;align-items:flex-start;gap:16px}
+.toc__head{flex:1 1 auto;min-width:0;display:block;padding:15px 0 16px;text-decoration:none;color:inherit}
 .toc__head .lab{display:block}
-.toc__title{display:block;margin-top:6px;font:400 25px/1.16 var(--ff-news);letter-spacing:-.01em;color:var(--ink);transition:color .2s;text-wrap:balance}
+.toc__head:focus-visible{outline-offset:-2px;border-radius:6px}
+.toc__title{display:block;margin-top:5px;font:400 23px/1.16 var(--ff-news);letter-spacing:-.01em;color:var(--ink);transition:color .2s;text-wrap:balance}
 .toc__head:hover .toc__title{color:var(--amber)}
-.toc__steps{list-style:none;margin-top:12px}
+.toc__toggle{flex:none;display:inline-flex;align-items:center;gap:8px;margin:17px 0 0;height:30px;padding:0 10px 0 12px;border:0;border-radius:var(--r-pill);background:transparent;box-shadow:inset 0 0 0 1px var(--rule-soft);cursor:pointer;
+  font:700 11.5px/1 var(--ff-label);letter-spacing:.12em;text-transform:uppercase;color:var(--label);white-space:nowrap;transition:background-color .2s,box-shadow .2s,color .2s}
+.toc__toggle:hover{background:var(--field);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
+.toc__toggle:focus-visible{outline-offset:2px;border-radius:var(--r-pill)}
+.toc__toggle .chev{width:11px;height:11px;transition:transform .25s cubic-bezier(.65,0,.35,1)}
+.toc__toggle[aria-expanded="true"]{color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
+.toc__toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.toc__steps{list-style:none;margin:-2px 0 14px}
 .toc__steps a{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:baseline;column-gap:10px;padding:11px 0 12px;border-top:1px solid var(--rule-soft);text-decoration:none;color:var(--ink-2);font-size:16px;line-height:1.38;transition:color .2s}
 .toc__steps a::after{content:"\2192";color:var(--ink-4);transition:transform .2s,color .2s}
 .toc__steps a:hover{color:var(--ink)}
@@ -318,6 +345,14 @@ main:focus{outline:none}
   .plate__ptr{transform-origin:0 0}
 }
 
+/* phone plates (frame: "phone" in the content): no browser bar, so the replay button floats in the frame's
+   top-right corner; and the pointer is always the fingertip, which reads as a finger on a phone screen,
+   on a desktop too */
+.plate__replay--float{position:absolute;top:10px;right:10px;z-index:3;background:rgba(255,255,255,.92);box-shadow:0 0 0 1px var(--rule-soft),0 2px 6px rgba(20,23,28,.1)}
+.plate__replay--float:hover{background:#fff;box-shadow:0 0 0 1px var(--rule),0 2px 6px rgba(20,23,28,.12)}
+.plate--phone .plate__arrow{display:none}
+.plate--phone .plate__finger{display:block}
+
 /* small plates (phones): slightly smaller pointer, ripple and label so they don't crowd the picture */
 .plate.is-small .plate__arrow{left:-3.8px;top:-2.95px;width:21px;height:21px}
 .plate.is-small .plate__finger{left:-12px;top:-12px;width:24px;height:24px}
@@ -375,8 +410,7 @@ main:focus{outline:none}
    --------------------------------------------------------------------- */
 @media (max-width:1023.98px){
   :root{--header-h:64px}
-  .site-nav{display:none}
-  .site-nav + .site-header__cta{margin-left:auto}
+  .site-nav__panel{top:calc(100% + 18px)}
   /* 12-column grids collapse to one column (their 32px gaps alone would overflow a phone) */
   .hero__grid,.chapter__rule{grid-template-columns:minmax(0,1fr)}
   .hero__main,.toc,.chapter__main,.chapter__summary{grid-column:1/-1}
@@ -400,6 +434,9 @@ main:focus{outline:none}
   .sf-col,.sf-col:first-of-type{grid-column:auto}
 }
 @media (max-width:640px){
+  /* phones: logo and "Open CoPlanAI" only */
+  .site-nav{display:none}
+  .site-nav + .site-header__cta{margin-left:auto}
   .site-header__label{display:none}
   .brand img{width:93px;height:22px}
   .hero .h1{font-size:clamp(44px,12.4vw,56px)}
@@ -416,6 +453,7 @@ main:focus{outline:none}
   .plate__url svg{display:none}
   .plate__replay{width:26px;height:26px}
   .plate__replay svg{width:13px;height:13px}
+  .plate__replay--float{top:8px;right:8px}
   .plate__frame{border-radius:14px}
   .plate__segs i{width:9px}
   .note{padding:16px 18px 18px}
@@ -437,14 +475,16 @@ main:focus{outline:none}
    --------------------------------------------------------------------- */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .beat__text,.beat__text strong,.beat__no,.beat::before,.plate__img,.progress i,.site-nav a::after{transition-duration:.01s!important}
+  .beat__text,.beat__text strong,.beat__no,.beat::before,.plate__img,.progress i,.site-nav__panel,.site-nav__btn,.chev{transition-duration:.01s!important}
+  .site-nav__panel{transform:none}
 }
 
 /* ---------------------------------------------------------------------
    11 · Print: every beat readable, nothing sticky
    --------------------------------------------------------------------- */
 @media print{
-  .site-header,.skip,.progress,.plate__replay,.cue{display:none!important}
+  .site-header,.skip,.progress,.plate__replay,.cue,.toc__toggle{display:none!important}
+  .toc__steps[hidden]{display:block!important}
   .step__stage{position:static!important}
   .beat{min-height:0!important;break-inside:avoid}
   .beat .beat__text{color:var(--text)!important}

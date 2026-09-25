@@ -240,6 +240,7 @@
         m.lead = str(st.lead);
         m.image = str(st.image);
         m.url = str(st.url);
+        m.frame = str(st.frame).toLowerCase() === 'phone' ? 'phone' : 'browser';   // "phone": no browser bar, fingertip pointer
         m.alt = str(st.alt) || unstar(m.title);
         m.note = isObj(st.note) && (str(st.note.html) || str(st.note.title)) ? {
           kind: /^(info|tip|warning)$/.test(st.note.kind) ? st.note.kind : 'info',
@@ -326,7 +327,8 @@
   var ICON_REPLAY = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.2 8a5.2 5.2 0 1 1-1.52-3.68" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.9 1.9v2.9H10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var ICON_LOCK = '<svg viewBox="0 0 12 12" aria-hidden="true" focusable="false"><rect x="2.25" y="5.25" width="7.5" height="5.5" rx="1.4" fill="currentColor"/><path d="M4 5.4V4a2 2 0 0 1 4 0v1.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
   var ICON_ARROW = '<svg class="plate__arrow" viewBox="0 0 25 25" aria-hidden="true" focusable="false"><path d="M4.5 3.5v16.2l4.1-3.9 2.9 6.4 2.9-1.3-2.8-6.2h5.8z" fill="#fff" stroke="#14171C" stroke-width="1.35" stroke-linejoin="round"/></svg>';
-  var ICON_IMAGE = '<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="4" y="6" width="24" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="11.5" cy="12.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 23l7-6.5 5 4.5 3.5-3 6.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  var ICON_CHEVRON = '<svg class="chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.75 4.5 6 7.75 9.25 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_IMAGE ='<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="4" y="6" width="24" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="11.5" cy="12.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 23l7-6.5 5 4.5 3.5-3 6.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 
   function Scene(step) {
     var self = this;
@@ -379,8 +381,12 @@
     this.capText = h('span', { class: 'lab', text: 'Step ' + pad2(st.no) });
     this.segs = h('span', { class: 'plate__segs', 'aria-hidden': 'true' });
     st.beats.forEach(function () { self.segs.appendChild(h('i')); });
-    this.el = h('figure', { class: 'plate', id: 'plate-' + st.id }, [
-      h('div', { class: 'plate__frame' }, [
+    // a phone plate (frame: "phone") has no browser bar: the replay button floats in the frame's top-right
+    // corner instead, and the pointer is a fingertip on every device (guide.css)
+    var phone = st.frame === 'phone';
+    if (phone) replay.classList.add('plate__replay--float');
+    this.el = h('figure', { class: 'plate' + (phone ? ' plate--phone' : ''), id: 'plate-' + st.id }, [
+      h('div', { class: 'plate__frame' }, phone ? [this.view, replay] : [
         h('div', { class: 'plate__bar' }, [h('span', { class: 'plate__dots', 'aria-hidden': 'true' }, [h('i'), h('i'), h('i')]), url, replay]),
         this.view
       ]),
@@ -956,6 +962,7 @@
       if (cur !== Nav.chapter) {
         Nav.chapter = cur;
         NAV_LINKS.forEach(function (a) { if (+a.getAttribute('data-i') === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+        Menu.mark(cur);
       }
     },
 
@@ -1001,6 +1008,73 @@
     }
   };
 
+  /* The header's chapter menu: a "Chapters" disclosure button and a panel with one link per chapter (a plain
+     list of links, not an ARIA menu, so it reads and tabs like any navigation). The button counts the chapter
+     on screen ("03/07") and its link carries aria-current. Esc, a click outside, leaving it with Tab or
+     following a link close it; ↑/↓, Home and End move between the links. */
+  var Menu = {
+    nav: null, btn: null, panel: null, count: null, open: false, total: 0,
+
+    build: function (list, nCh, nSt) {
+      var nav = list.parentNode;
+      if (!nav) return;
+      Menu.nav = nav; Menu.total = nCh;
+      Menu.count = h('span', { class: 'site-nav__count', 'aria-hidden': 'true' });
+      Menu.btn = h('button', { type: 'button', class: 'site-nav__btn', 'aria-expanded': 'false', 'aria-controls': 'chapter-menu' },
+        [h('span', { class: 'site-nav__word', text: 'Chapters' }), Menu.count]);
+      Menu.btn.appendChild(markup(ICON_CHEVRON));
+      nav.insertBefore(Menu.btn, list);
+      Menu.panel = h('div', { class: 'site-nav__panel', id: 'chapter-menu' }, [
+        h('p', { class: 'lab site-nav__lab', 'aria-hidden': 'true', text: nCh + (nCh === 1 ? ' chapter · ' : ' chapters · ') + nSt + (nSt === 1 ? ' step' : ' steps') }),
+        list
+      ]);
+      nav.appendChild(Menu.panel);
+
+      Menu.btn.addEventListener('click', function () { Menu.set(!Menu.open); });
+      list.addEventListener('click', function (e) { if (e.target && e.target.closest && e.target.closest('a')) Menu.set(false); });
+      nav.addEventListener('keydown', Menu.onKey);
+      nav.addEventListener('focusout', function (e) {
+        if (!Menu.open) return;
+        var to = e.relatedTarget;
+        if (to && nav.contains(to)) return;
+        setTimeout(function () { if (!nav.contains(doc.activeElement)) Menu.set(false); }, 0);
+      });
+      doc.addEventListener('click', function (e) { if (Menu.open && !nav.contains(e.target)) Menu.set(false); });
+    },
+
+    set: function (v) {
+      if (!Menu.btn || v === Menu.open) return;
+      Menu.open = v;
+      Menu.btn.setAttribute('aria-expanded', String(v));
+      Menu.nav.classList.toggle('is-open', v);
+    },
+
+    onKey: function (e) {
+      var k = e.key, n = NAV_LINKS.length;
+      if (k === 'Escape' || k === 'Esc') {
+        if (!Menu.open) return;
+        e.preventDefault(); Menu.set(false); Menu.btn.focus();
+        return;
+      }
+      if (!/^(ArrowDown|ArrowUp|Down|Up|Home|End)$/.test(k) || e.altKey || e.ctrlKey || e.metaKey) return;
+      var i = NAV_LINKS.indexOf(doc.activeElement), down = k === 'ArrowDown' || k === 'Down', to;
+      if (i < 0) {                                    // on the button: open, and go to the chapter on screen
+        if (k === 'Home' || k === 'End') return;
+        Menu.set(true);
+        to = down ? Math.max(0, Nav.chapter) : n - 1;
+      } else to = k === 'Home' ? 0 : k === 'End' ? n - 1 : clamp(i + (down ? 1 : -1), 0, n - 1);
+      e.preventDefault();
+      NAV_LINKS[to].focus();
+    },
+
+    /* the chapter on screen (-1: none yet, the reader is in the hero) */
+    mark: function (cur) {
+      if (!Menu.count) return;
+      Menu.count.textContent = cur >= 0 ? pad2(cur + 1) + '/' + pad2(Menu.total) : '';
+      Menu.nav.classList.toggle('has-current', cur >= 0);
+    }
+  };
+
   /* ================================================================== 8 · Page render */
   function render(model) {
     var target = q('[data-guide="chapters"]');
@@ -1028,37 +1102,61 @@
       else start.hidden = true;
     }
 
-    // index of chapters and steps
+    // index of chapters: one row per chapter (a link to it), each with a disclosure button that lists its
+    // steps, so the index stays compact however many chapters and steps the guide has
     var toc = q('[data-guide="toc"]');
     if (toc && nSt) {
       var list = h('ol', { class: 'toc__chapters' });
       model.chapters.forEach(function (ch) {
         if (!ch.steps.length) return;
-        var steps = h('ol', { class: 'toc__steps' });
+        var sid = ch.id + '-steps', n = ch.steps.length, title = unstar(ch.title);
+        var steps = h('ol', { class: 'toc__steps', id: sid, hidden: true });
         ch.steps.forEach(function (st) {
           steps.appendChild(h('li', null, h('a', { href: '#' + st.id }, [
             h('span', { class: 'toc__no', text: pad2(st.no) }),
             h('span', { class: 'toc__t', text: unstar(st.title) })
           ])));
         });
-        list.appendChild(h('li', { class: 'toc__chapter' }, [
-          h('a', { class: 'toc__head', href: '#' + ch.id }, [
-            h('span', { class: 'lab', text: 'Chapter ' + pad2(ch.no) + ' · ' + ch.steps.length + (ch.steps.length === 1 ? ' step' : ' steps') }),
-            h('span', { class: 'toc__title', text: unstar(ch.title) })
+        var toggle = h('button', { type: 'button', class: 'toc__toggle', 'aria-expanded': 'false', 'aria-controls': sid }, [
+          h('span', { text: n + (n === 1 ? ' step' : ' steps') }), h('span', { class: 'sr', text: ' in ' + title })
+        ]);
+        toggle.appendChild(markup(ICON_CHEVRON));
+        toggle.addEventListener('click', function () {
+          var open = toggle.getAttribute('aria-expanded') !== 'true';
+          toggle.setAttribute('aria-expanded', String(open));
+          steps.hidden = !open;
+          item.classList.toggle('is-open', open);
+        });
+        var item = h('li', { class: 'toc__chapter' }, [
+          h('div', { class: 'toc__row' }, [
+            h('a', { class: 'toc__head', href: '#' + ch.id }, [
+              h('span', { class: 'lab', text: 'Chapter ' + pad2(ch.no) }),
+              h('span', { class: 'toc__title', text: title })
+            ]),
+            toggle
           ]),
           steps
-        ]));
+        ]);
+        list.appendChild(item);
       });
       toc.appendChild(list);
       toc.hidden = false;
     }
 
-    // header + footer chapter links
+    // header menu + footer chapter links
     var nav = q('[data-guide="nav"]'), fnav = q('[data-guide="footer-nav"]');
     model.chapters.forEach(function (ch, i) {
-      if (nav) { var a = h('a', { href: '#' + ch.id, 'data-i': String(i), text: unstar(ch.title) }); NAV_LINKS.push(a); nav.appendChild(h('li', null, a)); }
+      if (nav) {
+        var a = h('a', { href: '#' + ch.id, 'data-i': String(i) }, [
+          h('span', { class: 'site-nav__no', 'aria-hidden': 'true', text: pad2(ch.no) }),
+          h('span', { class: 'site-nav__t', text: unstar(ch.title) }),
+          h('span', { class: 'site-nav__n', text: ch.steps.length + (ch.steps.length === 1 ? ' step' : ' steps') })
+        ]);
+        NAV_LINKS.push(a); nav.appendChild(h('li', null, a));
+      }
       if (fnav) fnav.appendChild(h('li', null, h('a', { href: '#' + ch.id, text: unstar(ch.title) })));
     });
+    if (nav && NAV_LINKS.length) Menu.build(nav, nCh, nSt);
 
     if (!target) return;
     if (!nCh || !nSt) {
@@ -1156,12 +1254,13 @@
     onMedia(mqShort, Nav.request);
   }
 
-  /* show the chapter links in the header only when the whole bar fits */
+  /* show the chapter menu in the header only when the whole bar fits (and close it when it goes) */
   function fitNav() {
     var bar = q('.site-header__bar'), nav = q('.site-nav');
     if (!bar || !nav || !NAV_LINKS.length) { if (bar) bar.classList.add('is-tight'); return; }
     bar.classList.remove('is-tight');
     if (nav.offsetWidth && bar.scrollWidth > bar.clientWidth + 1) bar.classList.add('is-tight');
+    if (!nav.offsetWidth) Menu.set(false);
   }
 
   /* deep links: content is rendered after the browser tried to jump, so jump again */
@@ -1194,7 +1293,7 @@
   }
 
   // expose a tiny read-only handle for debugging and tests
-  win.CoPlanGuide = { version: '1.0', steps: function () { return STEPS; }, config: CFG };
+  win.CoPlanGuide = { version: '1.1', steps: function () { return STEPS; }, config: CFG };
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
 })();
