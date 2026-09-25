@@ -3,7 +3,7 @@
  * tools/capture.js: screenshots with exact highlight coordinates for the CoPlanAI platform guide.
  *
  * Every screenshot in tutorial/img is 2400x1200 WebP (2:1), taken from a 1900x950 CSS-pixel viewport at
- * deviceScaleFactor 2 and downscaled. Beats in tutorial/steps.js point at parts of the screenshot with
+ * deviceScaleFactor 2 and downscaled. Beats in tutorial/chapters/*.js point at parts of the screenshot with
  * normalised coordinates (0..1, origin top-left). This helper takes the screenshot AND measures the elements
  * you name, so the numbers are exact and you never have to guess them by eye.
  *
@@ -17,7 +17,7 @@
  *     highlights: { create: page.getByRole('button', { name: 'Create' }) },   // Locator, selector string, or spec
  *     points:     { create: 'role=button[name=/Create/]' },   // role=...[name="X"] is exact; /X/ is a substring
  *   });
- *   console.log(res.snippet);   // beat objects ready to paste into steps.js
+ *   console.log(res.snippet);   // beat objects ready to paste into a chapter file
  *   await close();              // CDP: closes only the tab it opened, then disconnects
  *
  * CLI
@@ -782,9 +782,9 @@ function jsLiteral(value) {
   return JSON.stringify(value);
 }
 
-/** steps.js-ready text: the image line plus one beat per key. */
+/** Chapter-file-ready text: the image line plus one beat per key. */
 function toSnippet(data) {
-  const lines = [`// ${data.name}: paste into tutorial/steps.js (write the html text for each beat)`, `image: ${JSON.stringify(data.image)},`];
+  const lines = [`// ${data.name}: paste into a tutorial/chapters/*.js file (write the html text for each beat)`, `image: ${JSON.stringify(data.image)},`];
   if (data.url) lines.push(`url: ${JSON.stringify(data.url)},`);
   lines.push('beats: [');
   for (const [key, beat] of Object.entries(data.beats)) lines.push(`  ${jsLiteral({ html: `TODO (${key})`, ...beat })},`);

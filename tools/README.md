@@ -7,8 +7,8 @@ For each shot it writes:
 
 - `tutorial/img/<name>.webp`: 2400x1200, captured from a 1900x950 CSS-px viewport at 2x, like every other plate.
 - `tutorial/img/<name>.json`: normalised `[x, y, w, h]` boxes (4 decimals) and centre points for every key you
-  named, a suggested 2:1 `zoom` region for each box, and ready-made `beats` for `steps.js`.
-- It also prints a snippet you can paste straight into `tutorial/steps.js`.
+  named, a suggested 2:1 `zoom` region for each box, and ready-made `beats` for a chapter file.
+- It also prints a snippet you can paste straight into a chapter file (`tutorial/chapters/NN-*.js`).
 
 ## Setup
 
@@ -126,7 +126,7 @@ warning. Use `--strict` to exit with code 2 when there are warnings.
 | `resizer` | `auto` | `sharp`, `pillow` or `browser`. |
 | `locatorTimeout` | `2000` | ms to wait for each target to become visible. |
 
-## 3. Paste into steps.js
+## 3. Paste into a chapter file
 
 The printed snippet (also stored under `beats` in the JSON) looks like this:
 
