@@ -1,0 +1,26 @@
+{
+  "name": "coplan-tutorial-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Screenshot + exact highlight-coordinate helper for the CoPlanAI platform guide (tutorial/).",
+  "license": "UNLICENSED",
+  "main": "capture.js",
+  "bin": {
+    "coplan-capture": "capture.js"
+  },
+  "scripts": {
+    "help": "node capture.js help",
+    "demo": "node capture.js --demo",
+    "login": "node capture.js login --state .auth/coplan.json",
+    "shot": "node capture.js shot"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.35.0"
+  }
+}

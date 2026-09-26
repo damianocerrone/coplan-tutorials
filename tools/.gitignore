@@ -1,0 +1,5 @@
+node_modules/
+# Saved sign-in sessions and browser profiles: they contain live credentials. Never commit them.
+.auth/
+*.state.json
+storage-state*.json
